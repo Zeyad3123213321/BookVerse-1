@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookVerse - Your Digital Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        header {
+            background: var(--secondary);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .logo i {
+            margin-right: 0.5rem;
+            color: var(--primary);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1.1rem;
+            margin: 0 0.2rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        nav ul li a:hover, nav ul li a.active {
+            background: var(--primary);
+        }
+
+        .search-bar {
+            display: flex;
+            width: 100%;
+            max-width: 500px;
+            margin: 1rem 0;
+        }
+
+        .search-bar input {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .search-bar button {
+            padding: 0.5rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .search-bar button:hover {
+            background: #2980b9;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-actions a {
+            color: white;
+            margin-left: 1rem;
+            font-size: 1.2rem;
+            position: relative;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Language Selector Styles */
+        .language-selector {
+            position: relative;
+            margin-left: 1rem;
+        }
+
+        #languageBtn {
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 1rem;
+        }
+
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1000;
+            min-width: 150px;
+        }
+
+        .language-dropdown ul {
+            list-style: none;
+        }
+
+        .language-dropdown li {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--dark);
+        }
+
+        .language-dropdown li:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .language-selector:hover .language-dropdown {
+            display: block;
+        }
+
+        /* RTL support */
+        [dir="rtl"] {
+            direction: rtl;
+            text-align: right;
+        }
+
+        [dir="rtl"] .book-info h3,
+        [dir="rtl"] .book-info .author {
+            text-align: right;
+        }
+
+        [dir="rtl"] .categories,
+        [dir="rtl"] nav ul {
+            justify-content: right;
+        }
+
+        [dir="rtl"] .search-bar {
+            direction: ltr; /* Keep search input LTR */
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .section-title {
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+            color: var(--secondary);
+        }
+
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .book-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .book-cover {
+            height: 250px;
+            background: #eee;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .book-card:hover .book-cover img {
+            transform: scale(1.05);
+        }
+
+        .book-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .book-info {
+            padding: 1rem;
+        }
+
+        .book-info h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .book-info .author {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .book-info .meta {
+            display: flex;
+            justify-content: space-between;
+            color: #777;
+            font-size: 0.8rem;
+            align-items: center;
+        }
+
+        .fa-star {
+            color: gold;
+            margin-left: 2px;
+        }
+
+        .book-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .category-btn {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .reader-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .reader-container {
+            background: white;
+            width: 90%;
+            max-width: 900px;
+            height: 80vh;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .reader-header {
+            background: var(--secondary);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reader-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            line-height: 1.8;
+        }
+
+        .reader-footer {
+            background: #f5f5f5;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-controls {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .close-reader {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        footer {
+            background: var(--secondary);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            text-align: left;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section ul li a:hover {
+            color: var(--primary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .copyright {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #444;
+        }
+
+        .cart-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .cart-container {
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            padding: 2rem;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-items-container {
+            overflow-y: auto;
+            margin: 1rem 0;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .cart-item img {
+            width: 50px;
+            height: 70px;
+            object-fit: cover;
+            margin-right: 1rem;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-title {
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+
+        .cart-item-author {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .cart-item-price {
+            font-weight: bold;
+        }
+
+        .cart-item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .quantity-btn {
+            background: var(--light);
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-item-remove {
+            color: var(--danger);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-left: 1rem;
+        }
+
+        .cart-total {
+            text-align: right;
+            margin-top: 1rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+            padding-top: 1rem;
+            border-top: 2px solid var(--primary);
+        }
+
+        .cart-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        .order-form {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1002;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .order-form h2 {
+            margin-bottom: 1.5rem;
+            color: var(--secondary);
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--secondary);
+            color: white;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            nav {
+                display: none;
+                width: 100%;
+                margin-top: 1rem;
+            }
+
+            nav.active {
+                display: block;
+            }
+
+            nav ul {
+                flex-direction: column;
+            }
+
+            nav ul li {
+                margin: 0.2rem 0;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .user-actions {
+                margin-top: 1rem;
+                justify-content: flex-end;
+            }
+
+            .book-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .cart-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .cart-item-info {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+
+            .cart-item-remove {
+                align-self: flex-end;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .form-actions button {
+                width: 100%;
+            }
+
+            .language-selector {
+                margin-left: 0;
+                margin-right: auto;
+                order: -1;
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+
+            .language-dropdown {
+                left: 0;
+                right: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-book-open"></i>
+                <span>BookVerse</span>
+            </div>
+            
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <nav id="mainNav">
+                <ul>
+                    <li><a href="#home" class="active" data-translate="home">Home</a></li>
+                    <li><a href="#library" data-translate="library">Library</a></li>
+                    <li><a href="#categories" data-translate="categories">Categories</a></li>
+                    <li><a href="#new" data-translate="new">New Releases</a></li>
+                    <li><a href="#bestsellers" data-translate="bestsellers">Bestsellers</a></li>
+                </ul>
+            </nav>
+            
+            <div class="search-bar">
+                <input type="text" id="searchInput" data-translate-placeholder="searchPlaceholder">
+                <button id="searchBtn"><i class="fas fa-search"></i></button>
+            </div>
+            
+            <div class="user-actions">
+                <div class="language-selector">
+                    <button id="languageBtn"><i class="fas fa-globe"></i> <span id="currentLanguage">English</span></button>
+                    <div class="language-dropdown" id="languageDropdown">
+                        <ul>
+                            <li data-lang="en">English</li>
+                            <li data-lang="es">Español</li>
+                            <li data-lang="fr">Français</li>
+                            <li data-lang="ar">العربية</li>
+                        </ul>
+                    </div>
+                </div>
+                <a href="#wishlist" title="Wishlist"><i class="fas fa-heart"></i></a>
+                <a href="#account" title="My Account"><i class="fas fa-user"></i></a>
+                <a href="#cart" title="Cart" id="cartLink">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="categories-section">
+            <h2 class="section-title" data-translate="browseCategories">Browse Categories</h2>
+            <div class="categories">
+                <button class="category-btn active" data-category="all" data-translate="all">All</button>
+                <button class="category-btn" data-category="fiction" data-translate="fiction">Fiction</button>
+                <button class="category-btn" data-category="fantasy" data-translate="fantasy">Fantasy</button>
+                <button class="category-btn" data-category="mystery" data-translate="mystery">Mystery</button>
+                <button class="category-btn" data-category="romance" data-translate="romance">Romance</button>
+                <button class="category-btn" data-category="scifi" data-translate="scifi">Sci-Fi</button>
+                <button class="category-btn" data-category="biography" data-translate="biography">Biography</button>
+                <button class="category-btn" data-category="history" data-translate="history">History</button>
+                <button class="category-btn" data-category="selfhelp" data-translate="selfhelp">Self-Help</button>
+            </div>
+        </section>
+        <section id="featured">
+            <h2 class="section-title" data-translate="featuredBooks">Featured Books</h2>
+            <div class="book-grid" id="featuredBooks"></div>
+        </section>
+        <section id="new-releases">
+            <h2 class="section-title" data-translate="newReleases">New Releases</h2>
+            <div class="book-grid" id="newReleases"></div>
+        </section>
+        <section id="bestsellers">
+            <h2 class="section-title" data-translate="bestsellers">Bestsellers</h2>
+            <div class="book-grid" id="bestsellersGrid"></div>
+        </section>
+    </main>
+
+    <div class="reader-modal" id="readerModal">
+        <div class="reader-container">
+            <div class="reader-header">
+                <h3 id="readerTitle">Book Title</h3>
+                <button class="close-reader" id="closeReader"><i class="fas fa-times"></i> <span data-translate="close">Close</span></button>
+            </div>
+            <div class="reader-content" id="readerContent"></div>
+            <div class="reader-footer">
+                <div class="page-controls">
+                    <button class="btn btn-outline" id="prevPage"><i class="fas fa-chevron-left"></i> <span data-translate="previous">Previous</span></button>
+                    <span id="pageInfo">Page 1 of 10</span>
+                    <button class="btn btn-outline" id="nextPage"><span data-translate="next">Next</span> <i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div>
+                    <button class="btn btn-primary" id="addToLibrary"><i class="fas fa-bookmark"></i> <span data-translate="save">Save</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-container">
+            <h2 data-translate="yourCart">Your Cart</h2>
+            <div class="cart-items-container" id="cartItems">
+                <div class="empty-cart" data-translate="emptyCart">Your cart is empty</div>
+            </div>
+            <div class="cart-total">
+                <span data-translate="total">Total</span>: $<span id="cartTotal">0.00</span>
+            </div>
+            <div class="cart-actions">
+                <button class="btn btn-outline" id="continueShoppingBtn" data-translate="continueShopping">Continue Shopping</button>
+                <button class="btn btn-primary" id="placeOrderBtn" data-translate="placeOrder">Place Order</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="order-form" id="orderForm">
+        <h2 data-translate="orderDetails">Order Details</h2>
+        <form id="orderFormDetails">
+            <div class="form-group">
+                <label for="name" data-translate="fullName">Full Name:</label>
+                <input type="text" id="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email" data-translate="email">Email:</label>
+                <input type="email" id="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone" data-translate="phone">Phone Number:</label>
+                <input type="tel" id="phone">
+            </div>
+            
+            <div class="form-group">
+                <label for="address" data-translate="address">Shipping Address:</label>
+                <input type="text" id="address" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="payment" data-translate="paymentMethod">Payment Method:</label>
+                <select id="payment" required>
+                    <option value="">Select payment method</option>
+                    <option value="credit" data-translate="creditCard">Credit Card</option>
+                    <option value="paypal">PayPal</option>
+                    <option value="bank" data-translate="bankTransfer">Bank Transfer</option>
+                </select>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline" id="cancelOrderBtn" data-translate="cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary" data-translate="confirmOrder">Confirm Order</button>
+            </div>
+        </form>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3 data-translate="about">About BookVerse</h3>
+                <p data-translate="aboutDescription">Your premier destination for digital books. We offer thousands of titles across all genres for your reading pleasure.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-goodreads"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3 data-translate="quickLinks">Quick Links</h3>
+                <ul>
+                    <li><a href="#" data-translate="home">Home</a></li>
+                    <li><a href="#" data-translate="browseBooks">Browse Books</a></li>
+                    <li><a href="#" data-translate="new">New Releases</a></li>
+                    <li><a href="#" data-translate="bestsellers">Bestsellers</a></li>
+                    <li><a href="#" data-translate="deals">Deals</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 data-translate="help">Help</h3>
+                <ul>
+                    <li><a href="#" data-translate="faq">FAQ</a></li>
+                    <li><a href="#" data-translate="contact">Contact Us</a></li>
+                    <li><a href="#" data-translate="shipping">Shipping & Delivery</a></li>
+                    <li><a href="#" data-translate="returns">Returns</a></li>
+                    <li><a href="#" data-translate="privacy">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2023 BookVerse. <span data-translate="rights">All rights reserved.</span></p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sample book data
+            const books = [
+                {
+                    id: 1,
+                    title: "The Great Gatsby",
+                    author: "F Scott Fitzgerald",
+                    cover: "https://covers.openlibrary.org/b/id/240726-S.jpg",
+                    category: "fiction",
+                    year: 1925,
+                    price: 4.99,
+                    rating: 4.5,
+                    isNew: true,
+                    isBestseller: true,
+                    description: "The story of the fabulously wealthy Jay Gatsby and his love for the beautiful Daisy Buchanan.",
+                    content: "Chapter 1\n\nIn my younger and more vulnerable years my father gave me some advice that I've been turning over in my mind ever since...",
+                    pages: 180
+                },
+                {
+                    id: 2,
+                    title: "To Kill a Mockingbird",
+                    author: "Harper Lee",
+                    cover: "https://covers.openlibrary.org/b/id/240727-S.jpg",
+                    category: "fiction",
+                    year: 1960,
+                    price: 5.99,
+                    rating: 4.8,
+                    isNew: false,
+                    isBestseller: true,
+                    description: "The unforgettable novel of a childhood in a sleepy Southern town and the crisis of conscience that rocked it.",
+                    content: "Chapter 1\n\nWhen he was nearly thirteen, my brother Jem got his arm badly broken at the elbow...",
+                    pages: 281
+                },
+                {
+                    id: 3,
+                    title: "1984",
+                    author: "George Orwell",
+                    cover: "https://covers.openlibrary.org/b/id/7222246-S.jpg",
+                    category: "scifi",
+                    year: 1949,
+                    price: 6.49,
+                    rating: 4.7,
+                    isNew: false,
+                    isBestseller: true,
+                    description: "A dystopian social science fiction novel and cautionary tale about totalitarianism.",
+                    content: "Chapter 1\n\nIt was a bright cold day in April, and the clocks were striking thirteen...",
+                    pages: 328
+                },
+                {
+                    id: 4,
+                    title: "Pride and Prejudice",
+                    author: "Jane Austen",
+                    cover: "https://covers.openlibrary.org/b/id/240726-S.jpg",
+                    category: "romance",
+                    year: 1813,
+                    price: 3.99,
+                    rating: 4.6,
+                    isNew: false,
+                    isBestseller: true,
+                    description: "A romantic novel that charts the emotional development of Elizabeth Bennet.",
+                    content: "Chapter 1\n\nIt is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife...",
+                    pages: 279
+                },
+                {
+                    id: 5,
+                    title: "The Hobbit",
+                    author: "J.R.R. Tolkien",
+                    cover: "https://covers.openlibrary.org/b/id/8406789-S.jpg",
+                    category: "fantasy",
+                    year: 1937,
+                    price: 7.99,
+                    rating: 4.8,
+                    isNew: true,
+                    isBestseller: true,
+                    description: "The adventure of Bilbo Baggins, a hobbit who embarks on an incredible journey.",
+                    content: "Chapter 1\n\nIn a hole in the ground there lived a hobbit. Not a nasty, dirty, wet hole...",
+                    pages: 310
+                },
+                {
+                    id: 6,
+                    title: "The Da Vinci Code",
+                    author: "Dan Brown",
+                    cover: "https://covers.openlibrary.org/b/id/240727-S.jpg",
+                    category: "mystery",
+                    year: 2003,
+                    price: 8.99,
+                    rating: 4.3,
+                    isNew: false,
+                    isBestseller: true,
+                    description: "A murder mystery that becomes a trail to find a secret protected by a secret society.",
+                    content: "Chapter 1\n\nRenowned curator Jacques Saunière staggeredthrough the vaulted archway of the museum's Grand Gallery...",
+                    pages: 454
+                },
+                {
+                    id: 7,
+                    title: "Becoming",
+                    author: "Michelle Obama",
+                    cover: "https://covers.openlibrary.org/b/id/8406789-S.jpg",
+                    category: "biography",
+                    year: 2018,
+                    price: 12.99,
+                    rating: 4.9,
+                    isNew: true,
+                    isBestseller: true,
+                    description: "A memoir by the former First Lady of the United States.",
+                    content: "Chapter 1\n\nI spent much of my childhood listening to the sound of striving...",
+                    pages: 426
+                },
+                {
+                    id: 8,
+                    title: "Sapiens",
+                    author: "Yuval Noah Harari",
+                    cover: "https://covers.openlibrary.org/b/id/7222246-S.jpg",
+                    category: "history",
+                    year: 2011,
+                    price: 9.99,
+                    rating: 4.7,
+                    isNew: false,
+                    isBestseller: true,
+                    description: "A brief history of humankind, exploring the ways in which biology and history have defined us.",
+                    content: "Chapter 1\n\nAbout 13.5 billion years ago, matter, energy, time and space came into being in what is known as the Big Bang...",
+                    pages: 443
+                }
+            ];
+
+            // DOM elements
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mainNav = document.getElementById('mainNav');
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const featuredBooksGrid = document.getElementById('featuredBooks');
+            const newReleasesGrid = document.getElementById('newReleases');
+            const bestsellersGrid = document.getElementById('bestsellersGrid');
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            const readerModal = document.getElementById('readerModal');
+            const closeReaderBtn = document.getElementById('closeReader');
+            const readerTitle = document.getElementById('readerTitle');
+            const readerContent = document.getElementById('readerContent');
+            const pageInfo = document.getElementById('pageInfo');
+            const prevPageBtn = document.getElementById('prevPage');
+            const nextPageBtn = document.getElementById('nextPage');
+            const addToLibraryBtn = document.getElementById('addToLibrary');
+            const cartLink = document.getElementById('cartLink');
+            const cartCount = document.getElementById('cartCount');
+            const cartModal = document.getElementById('cartModal');
+            const cartItemsContainer = document.getElementById('cartItems');
+            const cartTotalDisplay = document.getElementById('cartTotal');
+            const placeOrderBtn = document.getElementById('placeOrderBtn');
+            const continueShoppingBtn = document.getElementById('continueShoppingBtn');
+            const orderForm = document.getElementById('orderForm');
+            const orderFormDetails = document.getElementById('orderFormDetails');
+            const cancelOrderBtn = document.getElementById('cancelOrderBtn');
+            const languageBtn = document.getElementById('languageBtn');
+            const currentLanguage = document.getElementById('currentLanguage');
+            const languageDropdown = document.getElementById('languageDropdown');
+
+            // Current state
+            let currentBook = null;
+            let currentPage = 1;
+            let cart = JSON.parse(localStorage.getItem('bookverseCart')) || [];
+            let currentLang = localStorage.getItem('bookverseLang') || 'en';
+
+            // Translation dictionary
+            const translations = {
+                en: {
+                    "home": "Home",
+                    "library": "Library",
+                    "categories": "Categories",
+                    "new": "New Releases",
+                    "bestsellers": "Bestsellers",
+                    "all": "All",
+                    "fiction": "Fiction",
+                    "fantasy": "Fantasy",
+                    "mystery": "Mystery",
+                    "romance": "Romance",
+                    "scifi": "Sci-Fi",
+                    "biography": "Biography",
+                    "history": "History",
+                    "selfhelp": "Self-Help",
+                    "browseCategories": "Browse Categories",
+                    "featuredBooks": "Featured Books",
+                    "newReleases": "New Releases",
+                    "yourCart": "Your Cart",
+                    "continueShopping": "Continue Shopping",
+                    "placeOrder": "Place Order",
+                    "total": "Total",
+                    "emptyCart": "Your cart is empty",
+                    "orderDetails": "Order Details",
+                    "fullName": "Full Name",
+                    "email": "Email",
+                    "phone": "Phone Number",
+                    "address": "Shipping Address",
+                    "paymentMethod": "Payment Method",
+                    "creditCard": "Credit Card",
+                    "bankTransfer": "Bank Transfer",
+                    "orderNotes": "Order Notes (optional)",
+                    "cancel": "Cancel",
+                    "confirmOrder": "Confirm Order",
+                    "readSample": "Read Sample",
+                    "addToCart": "Add to Cart",
+                    "addedToCart": "added to cart",
+                    "itemRemoved": "Item removed from cart",
+                    "orderPlaced": "Order placed by",
+                    "searchPlaceholder": "Search books, authors, or genres...",
+                    "close": "Close",
+                    "previous": "Previous",
+                    "next": "Next",
+                    "save": "Save",
+                    "about": "About BookVerse",
+                    "aboutDescription": "Your premier destination for digital books. We offer thousands of titles across all genres for your reading pleasure.",
+                    "quickLinks": "Quick Links",
+                    "browseBooks": "Browse Books",
+                    "deals": "Deals",
+                    "help": "Help",
+                    "faq": "FAQ",
+                    "contact": "Contact Us",
+                    "shipping": "Shipping & Delivery",
+                    "returns": "Returns",
+                    "privacy": "Privacy Policy",
+                    "rights": "All rights reserved"
+                },
+                es: {
+                    "home": "Inicio",
+                    "library": "Biblioteca",
+                    "categories": "Categorías",
+                    "new": "Nuevos Lanzamientos",
+                    "bestsellers": "Más Vendidos",
+                    "all": "Todos",
+                    "fiction": "Ficción",
+                    "fantasy": "Fantasía",
+                    "mystery": "Misterio",
+                    "romance": "Romance",
+                    "scifi": "Ciencia Ficción",
+                    "biography": "Biografía",
+                    "history": "Historia",
+                    "selfhelp": "Autoayuda",
+                    "browseCategories": "Explorar Categorías",
+                    "featuredBooks": "Libros Destacados",
+                    "newReleases": "Nuevos Lanzamientos",
+                    "yourCart": "Tu Carrito",
+                    "continueShopping": "Seguir Comprando",
+                    "placeOrder": "Realizar Pedido",
+                    "total": "Total",
+                    "emptyCart": "Tu carrito está vacío",
+                    "orderDetails": "Detalles del Pedido",
+                    "fullName": "Nombre Completo",
+                    "email": "Correo Electrónico",
+                    "phone": "Número de Teléfono",
+                    "address": "Dirección de Envío",
+                    "paymentMethod": "Método de Pago",
+                    "creditCard": "Tarjeta de Crédito",
+                    "bankTransfer": "Transferencia Bancaria",
+                    "orderNotes": "Notas del Pedido (opcional)",
+                    "cancel": "Cancelar",
+                    "confirmOrder": "Confirmar Pedido",
+                    "readSample": "Leer Muestra",
+                    "addToCart": "Añadir al Carrito",
+                    "addedToCart": "añadido al carrito",
+                    "itemRemoved": "Artículo eliminado del carrito",
+                    "orderPlaced": "Pedido realizado por",
+                    "searchPlaceholder": "Buscar libros, autores o géneros...",
+                    "close": "Cerrar",
+                    "previous": "Anterior",
+                    "next": "Siguiente",
+                    "save": "Guardar",
+                    "about": "Acerca de BookVerse",
+                    "aboutDescription": "Tu principal destino para libros digitales. Ofrecemos miles de títulos en todos los géneros para tu placer de lectura.",
+                    "quickLinks": "Enlaces Rápidos",
+                    "browseBooks": "Explorar Libros",
+                    "deals": "Ofertas",
+                    "help": "Ayuda",
+                    "faq": "Preguntas Frecuentes",
+                    "contact": "Contáctenos",
+                    "shipping": "Envío y Entrega",
+                    "returns": "Devoluciones",
+                    "privacy": "Política de Privacidad",
+                    "rights": "Todos los derechos reservados"
+                },
+                fr: {
+                    "home": "Accueil",
+                    "library": "Bibliothèque",
+                    "categories": "Catégories",
+                    "new": "Nouveautés",
+                    "bestsellers": "Meilleures Ventes",
+                    "all": "Tous",
+                    "fiction": "Fiction",
+                    "fantasy": "Fantaisie",
+                    "mystery": "Mystère",
+                    "romance": "Romance",
+                    "scifi": "Science-Fiction",
+                    "biography": "Biographie",
+                    "history": "Histoire",
+                    "selfhelp": "Développement Personnel",
+                    "browseCategories": "Parcourir les Catégories",
+                    "featuredBooks": "Livres en Vedette",
+                    "newReleases": "Nouveautés",
+                    "yourCart": "Votre Panier",
+                    "continueShopping": "Continuer les Achats",
+                    "placeOrder": "Passer la Commande",
+                    "total": "Total",
+                    "emptyCart": "Votre panier est vide",
+                    "orderDetails": "Détails de la Commande",
+                    "fullName": "Nom Complet",
+                    "email": "Email",
+                    "phone": "Numéro de Téléphone",
+                    "address": "Adresse de Livraison",
+                    "paymentMethod": "Méthode de Paiement",
+                    "creditCard": "Carte de Crédit",
+                    "bankTransfer": "Virement Bancaire",
+                    "orderNotes": "Notes de Commande (optionnel)",
+                    "cancel": "Annuler",
+                    "confirmOrder": "Confirmer la Commande",
+                    "readSample": "Lire un Extrait",
+                    "addToCart": "Ajouter au Panier",
+                    "addedToCart": "ajouté au panier",
+                    "itemRemoved": "Article retiré du panier",
+                    "orderPlaced": "Commande passée par",
+                    "searchPlaceholder": "Rechercher des livres, auteurs ou genres...",
+                    "close": "Fermer",
+                    "previous": "Précédent",
+                    "next": "Suivant",
+                    "save": "Enregistrer",
+                    "about": "À propos de BookVerse",
+                    "aboutDescription": "Votre destination premium pour les livres numériques. Nous proposons des milliers de titres dans tous les genres pour votre plaisir de lecture.",
+                    "quickLinks": "Liens Rapides",
+                    "browseBooks": "Parcourir les Livres",
+                    "deals": "Offres",
+                    "help": "Aide",
+                    "faq": "FAQ",
+                    "contact": "Contactez-nous",
+                    "shipping": "Livraison",
+                    "returns": "Retours",
+                    "privacy": "Politique de Confidentialité",
+                    "rights": "Tous droits réservés"
+                },
+                ar: {
+                    "home": "الرئيسية",
+                    "library": "المكتبة",
+                    "categories": "الفئات",
+                    "new": "الإصدارات الجديدة",
+                    "bestsellers": "الأكثر مبيعاً",
+                    "all": "الكل",
+                    "fiction": "خيال",
+                    "fantasy": "فانتازيا",
+                    "mystery": "غموض",
+                    "romance": "رومانسي",
+                    "scifi": "خيال علمي",
+                    "biography": "سيرة ذاتية",
+                    "history": "تاريخ",
+                    "selfhelp": "تطوير ذاتي",
+                    "browseCategories": "تصفح الفئات",
+                    "featuredBooks": "كتب مميزة",
+                    "newReleases": "إصدارات جديدة",
+                    "yourCart": "سلة التسوق",
+                    "continueShopping": "مواصلة التسوق",
+                    "placeOrder": "تقديم الطلب",
+                    "total": "المجموع",
+                    "emptyCart": "سلة التسوق فارغة",
+                    "orderDetails": "تفاصيل الطلب",
+                    "fullName": "الاسم الكامل",
+                    "email": "البريد الإلكتروني",
+                    "phone": "رقم الهاتف",
+                    "address": "عنوان الشحن",
+                    "paymentMethod": "طريقة الدفع",
+                    "creditCard": "بطاقة ائتمان",
+                    "bankTransfer": "تحويل بنكي",
+                    "orderNotes": "ملاحظات الطلب (اختياري)",
+                    "cancel": "إلغاء",
+                    "confirmOrder": "تأكيد الطلب",
+                    "readSample": "قراءة عينة",
+                    "addToCart": "إضافة إلى السلة",
+                    "addedToCart": "تمت الإضافة إلى السلة",
+                    "itemRemoved": "تمت إزالة العنصر من السلة",
+                    "orderPlaced": "تم تقديم الطلب بواسطة",
+                    "searchPlaceholder": "ابحث عن كتب، مؤلفين أو أنواع...",
+                    "close": "إغلاق",
+                    "previous": "السابق",
+                    "next": "التالي",
+                    "save": "حفظ",
+                    "about": "حول بوكفيرس",
+                    "aboutDescription": "وجهتك المميزة للكتب الرقمية. نقدم آلاف العناوين عبر جميع الأنواع لمتعة قراءتك.",
+                    "quickLinks": "روابط سريعة",
+                    "browseBooks": "تصفح الكتب",
+                    "deals": "العروض",
+                    "help": "مساعدة",
+                    "faq": "الأسئلة الشائعة",
+                    "contact": "اتصل بنا",
+                    "shipping": "الشحن والتوصيل",
+                    "returns": "الإرجاع",
+                    "privacy": "سياسة الخصوصية",
+                    "rights": "جميع الحقوق محفوظة"
+                }
+            };
+
+            // Initialize the app
+            function init() {
+                updateCartCount();
+                loadBooks();
+                setupEventListeners();
+                changeLanguage(currentLang); // Set initial language
+            }
+
+            // Set up event listeners
+            function setupEventListeners() {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mainNav.classList.toggle('active');
+                    this.setAttribute('aria-expanded', mainNav.classList.contains('active'));
+                });
+
+                searchBtn.addEventListener('click', performSearch);
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') performSearch();
+                });
+
+                categoryBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        categoryBtns.forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        const category = this.dataset.category;
+                        if (category === 'all') {
+                            loadBooks();
+                        } else {
+                            const filteredBooks = books.filter(book => book.category === category);
+                            renderBooks(filteredBooks, featuredBooksGrid);
+                        }
+                    });
+                });
+
+                closeReaderBtn.addEventListener('click', closeReader);
+                prevPageBtn.addEventListener('click', () => goToPage(currentPage - 1));
+                nextPageBtn.addEventListener('click', () => goToPage(currentPage + 1));
+                addToLibraryBtn.addEventListener('click', () => {
+                    showToast('save', 'success');
+                    closeReader();
+                });
+
+                cartLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    updateCartDisplay();
+                    cartModal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                });
+
+                continueShoppingBtn.addEventListener('click', closeCart);
+                placeOrderBtn.addEventListener('click', openOrderForm);
+                cancelOrderBtn.addEventListener('click', closeOrderForm);
+                orderFormDetails.addEventListener('submit', handleOrderSubmission);
+
+                window.addEventListener('click', function(e) {
+                    if (e.target === cartModal) closeCart();
+                    if (e.target === readerModal) closeReader();
+                    if (e.target === orderForm) closeOrderForm();
+                });
+
+                // Language selector
+                document.querySelectorAll('.language-dropdown li').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const lang = this.getAttribute('data-lang');
+                        changeLanguage(lang);
+                    });
+                });
+            }
+
+            // Language functions
+            function changeLanguage(lang) {
+                currentLang = lang;
+                localStorage.setItem('bookverseLang', lang);
+                currentLanguage.textContent = getLanguageName(lang);
+                
+                // Update UI direction for RTL languages
+                if (lang === 'ar') {
+                    document.documentElement.dir = 'rtl';
+                    document.documentElement.lang = 'ar';
+                } else {
+                    document.documentElement.dir = 'ltr';
+                    document.documentElement.lang = lang;
+                }
+                
+                // Update all translatable elements
+                updateTranslations();
+            }
+
+            function getLanguageName(code) {
+                const languages = {
+                    'en': 'English',
+                    'es': 'Español',
+                    'fr': 'Français',
+                    'ar': 'العربية'
+                };
+                return languages[code] || 'English';
+            }
+
+            function updateTranslations() {
+                // Update elements with data-translate attribute
+                document.querySelectorAll('[data-translate]').forEach(el => {
+                    const key = el.getAttribute('data-translate');
+                    if (translations[currentLang][key]) {
+                        el.textContent = translations[currentLang][key];
+                    }
+                });
+
+                // Update placeholder texts
+                document.querySelectorAll('[data-translate-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-translate-placeholder');
+                    if (translations[currentLang][key]) {
+                        el.placeholder = translations[currentLang][key];
+                    }
+                });
+
+                // Update select options
+                document.querySelectorAll('option[data-translate]').forEach(option => {
+                    const key = option.getAttribute('data-translate');
+                    if (translations[currentLang][key]) {
+                        option.textContent = translations[currentLang][key];
+                    }
+                });
+
+                // Update book action buttons
+                document.querySelectorAll('.read-btn').forEach(btn => {
+                    btn.textContent = translations[currentLang]['readSample'] || 'Read Sample';
+                });
+                
+                document.querySelectorAll('.buy-btn').forEach(btn => {
+                    btn.textContent = translations[currentLang]['addToCart'] || 'Add to Cart';
+                });
+            }
+
+            // Perform search
+            function performSearch() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                if (searchTerm.length >= 2 || searchTerm.length === 0) {
+                    if (!searchTerm) {
+                        loadBooks();
+                        return;
+                    }
+                    
+                    const results = books.filter(book => 
+                        book.title.toLowerCase().includes(searchTerm) || 
+                        book.author.toLowerCase().includes(searchTerm) ||
+                        book.category.toLowerCase().includes(searchTerm) ||
+                        book.description.toLowerCase().includes(searchTerm)
+                    );
+                    
+                    if (results.length > 0) {
+                        renderBooks(results, featuredBooksGrid);
+                        window.scrollTo(0, 0);
+                    } else {
+                        showToast('No books found matching your search', 'error');
+                    }
+                }
+            }
+
+            // Render book cards
+            function renderBooks(booksArray, container) {
+                container.innerHTML = '';
+                
+                if (booksArray.length === 0) {
+                    container.innerHTML = '<p class="empty-cart">' + (translations[currentLang]['noBooksFound'] || 'No books found') + '</p>';
+                    return;
+                }
+                
+                booksArray.forEach(book => {
+                    const bookCard = document.createElement('div');
+                    bookCard.className = 'book-card';
+                    bookCard.innerHTML = `
+                        <div class="book-cover">
+                            <img src="${book.cover}" alt="${book.title}" onerror="this.src='https://via.placeholder.com/200x300?text=No+Cover'">
+                            ${book.isNew ? '<span class="book-badge">' + (translations[currentLang]['new'] || 'New') + '</span>' : ''}
+                        </div>
+                        <div class="book-info">
+                            <h3>${book.title}</h3>
+                            <p class="author">${book.author}</p>
+                            <div class="meta">
+                                <span>$${book.price.toFixed(2)}</span>
+                                <span>${book.rating} <i class="fas fa-star"></i></span>
+                            </div>
+                            <div class="book-actions">
+                                <button class="btn btn-outline read-btn" data-id="${book.id}">${translations[currentLang]['readSample'] || 'Read Sample'}</button>
+                                <button class="btn btn-primary buy-btn" data-id="${book.id}">${translations[currentLang]['addToCart'] || 'Add to Cart'}</button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(bookCard);
+                });
+
+                // Remove existing event listeners first
+                document.querySelectorAll('.read-btn').forEach(btn => {
+                    btn.replaceWith(btn.cloneNode(true));
+                });
+                document.querySelectorAll('.buy-btn').forEach(btn => {
+                    btn.replaceWith(btn.cloneNode(true));
+                });
+
+                // Add fresh event listeners
+                document.querySelectorAll('.read-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const bookId = parseInt(this.dataset.id);
+                        openReader(bookId);
+                    });
+                });
+
+                document.querySelectorAll('.buy-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const bookId = parseInt(this.dataset.id);
+                        const book = books.find(b => b.id === bookId);
+                        addToCart(book);
+                    });
+                });
+            }
+
+            // Cart functionality
+            function addToCart(book) {
+                const existingItem = cart.find(item => item.id === book.id);
+                
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({
+                        ...book,
+                        quantity: 1
+                    });
+                }
+                
+                updateCart();
+                showToast('addedToCart', 'success');
+            }
+            
+            function removeFromCart(bookId) {
+                cart = cart.filter(item => item.id !== bookId);
+                updateCart();
+                showToast('itemRemoved', 'error');
+            }
+            
+            function updateQuantity(bookId, isPlus) {
+                const item = cart.find(item => item.id === bookId);
+                if (item) {
+                    if (isPlus) {
+                        item.quantity += 1;
+                    } else {
+                        if (item.quantity > 1) {
+                            item.quantity -= 1;
+                        } else {
+                            removeFromCart(bookId);
+                            return;
+                        }
+                    }
+                    updateCart();
+                }
+            }
+            
+            function updateCart() {
+                localStorage.setItem('bookverseCart', JSON.stringify(cart));
+                updateCartCount();
+                updateCartDisplay();
+            }
+            
+            function updateCartCount() {
+                const count = cart.reduce((total, item) => total + item.quantity, 0);
+                cartCount.textContent = count;
+                cartCount.style.display = count > 0 ? 'flex' : 'none';
+            }
+            
+            function updateCartDisplay() {
+                cartItemsContainer.innerHTML = '';
+                
+                if (cart.length === 0) {
+                    cartItemsContainer.innerHTML = '<div class="empty-cart">' + (translations[currentLang]['emptyCart'] || 'Your cart is empty') + '</div>';
+                    cartTotalDisplay.textContent = '0.00';
+                    placeOrderBtn.disabled = true;
+                    return;
+                }
+                
+                let total = 0;
+                
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    total += itemTotal;
+                    
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'cart-item';
+                    cartItem.innerHTML = `
+                        <div class="cart-item-info">
+                            <img src="${item.cover}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/50x70?text=No+Cover'">
+                            <div class="cart-item-details">
+                                <div class="cart-item-title">${item.title}</div>
+                                <div class="cart-item-author">${item.author}</div>
+                                <div class="cart-item-price">$${item.price.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="cart-item-quantity">
+                            <button class="quantity-btn minus" data-id="${item.id}">-</button>
+                            <span>${item.quantity}</span>
+                            <button class="quantity-btn plus" data-id="${item.id}">+</button>
+                        </div>
+                        <button class="cart-item-remove" data-id="${item.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    cartItemsContainer.appendChild(cartItem);
+                });
+                
+                cartTotalDisplay.textContent = total.toFixed(2);
+                placeOrderBtn.disabled = false;
+                
+                // Add event listeners to remove buttons
+                document.querySelectorAll('.cart-item-remove').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const bookId = parseInt(this.dataset.id);
+                        removeFromCart(bookId);
+                    });
+                });
+                
+                // Add event listeners to quantity buttons
+                document.querySelectorAll('.quantity-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const bookId = parseInt(this.dataset.id);
+                        const isPlus = this.classList.contains('plus');
+                        updateQuantity(bookId, isPlus);
+                    });
+                });
+            }
+            
+            function closeCart() {
+                cartModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+            
+            function openOrderForm() {
+                if (cart.length === 0) {
+                    showToast('emptyCart', 'error');
+                    return;
+                }
+                
+                cartModal.style.display = 'none';
+                orderForm.style.display = 'block';
+            }
+            
+            function closeOrderForm() {
+                orderForm.style.display = 'none';
+                cartModal.style.display = 'flex';
+            }
+            
+            function handleOrderSubmission(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const address = document.getElementById('address').value;
+                
+                showToast('orderPlaced', 'success');
+                
+                // Clear the cart
+                cart = [];
+                updateCart();
+                orderFormDetails.reset();
+                
+                // Close all modals
+                orderForm.style.display = 'none';
+                cartModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+
+            // Reader functions
+            function openReader(bookId) {
+                currentBook = books.find(book => book.id === bookId);
+                currentPage = 1;
+                
+                readerTitle.textContent = currentBook.title;
+                goToPage(1);
+                
+                readerModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+    
+            function closeReader() {
+                readerModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+    
+            function goToPage(page) {
+                if (page < 1 || page > currentBook.pages) return;
+                
+                currentPage = page;
+                readerContent.innerHTML = `
+                    <h3>${currentBook.title} - ${translations[currentLang]['page'] || 'Page'} ${page}</h3>
+                    <p>${Array(5).fill().map((_,i) => 
+                        `${translations[currentLang]['sampleContent'] || 'This is sample content for'} ${translations[currentLang]['page'] || 'Page'} ${page}, ${translations[currentLang]['paragraph'] || 'paragraph'} ${i+1} ${translations[currentLang]['of'] || 'of'} ${currentBook.title}.`
+                    ).join('</p><p>')}</p>
+                `;
+                pageInfo.textContent = `${translations[currentLang]['page'] || 'Page'} ${page} ${translations[currentLang]['of'] || 'of'} ${currentBook.pages}`;
+                
+                prevPageBtn.disabled = page === 1;
+                nextPageBtn.disabled = page === currentBook.pages;
+            }
+
+            function showToast(messageKey, type = '') {
+                const message = translations[currentLang][messageKey] || messageKey;
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                
+                setTimeout(() => toast.classList.add('show'), 100);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            // Load initial book data
+            function loadBooks() {
+                renderBooks(books, featuredBooksGrid);
+                renderBooks(books.filter(b => b.isNew), newReleasesGrid);
+                renderBooks(books.filter(b => b.isBestseller), bestsellersGrid);
+            }
+
+            // Initialize the application
+            init();
+        });
+    </script>
+</body>
+</html>
